@@ -1,0 +1,13 @@
+venv/
+Images/
+README.md/
+
+
+# Ignore specific files
+.env
+*.log
+*.tmp
+
+# Ignore hidden files and folders
+.git
+.DS_Store
