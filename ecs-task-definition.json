@@ -1,8 +1,8 @@
 {
   "family": "paneltask",
   "networkMode": "awsvpc",
-  "executionRoleArn": "arn:aws:iam::442042528233:role/ecsTaskExecutionRole",
-  "taskRoleArn": "arn:aws:iam::442042528233:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::<account-id>:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::<account-id>:role/ecsTaskExecutionRole",
   "cpu": "256",
   "memory": "512",
   "requiresCompatibilities": [
@@ -11,7 +11,7 @@
   "containerDefinitions": [
     {
       "name": "panelcontainer",
-      "image": "442042528233.dkr.ecr.us-east-1.amazonaws.com/panelapprepo:1737822866",
+      "image": "<IMAGE_URI>",
       "essential": true,
       "portMappings": [
         {
@@ -36,49 +36,9 @@
         "subnet-0ad5ea42ed667a8ea"
       ],
       "securityGroups": [
-        "sg-072c0759f55cb1915"
+        "sg-0123456789abcdef0"
       ],
       "assignPublicIp": "ENABLED"
     }
   }
 }
-
-
-
-
-
-
-// {
-//     "family": "paneltask",
-//     "networkMode": "awsvpc",
-//     "executionRoleArn": "arn:aws:iam::442042528233:role/ecsTaskExecutionRole",
-//     "taskRoleArn": "arn:aws:iam::442042528233:role/ecsTaskExecutionRole",
-//     "cpu": "256",
-//     "memory": "512",
-//     "requiresCompatibilities": [
-//       "FARGATE"
-//     ],
-//     "containerDefinitions": [
-//       {
-//         "name": "panelcontainer",
-//         "image": "<IMAGE_URI>",
-//         "essential": true,
-//         "portMappings": [
-//           {
-//             "containerPort": 5006,
-//             "hostPort": 5006,
-//             "protocol": "tcp"
-//           }
-//         ],
-//         "logConfiguration": {
-//           "logDriver": "awslogs",
-//           "options": {
-//             "awslogs-group": "/ecs/paneltask",
-//             "awslogs-region": "${{ secrets.AWS_REGION }}",
-//             "awslogs-stream-prefix": "ecs"
-//           }
-//         }
-//       }
-//     ]
-//   }
-  
