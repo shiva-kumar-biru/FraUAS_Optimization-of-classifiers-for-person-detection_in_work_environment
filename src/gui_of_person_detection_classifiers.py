@@ -257,7 +257,7 @@ template = pn.template.BootstrapTemplate(
     ),
     main =[main],
     header_background='#6424db',
-    site="Frankfurt University of Applied Sciences",
+    site="FRUAS",
     sidebar_width=350,
     busy_indicator=None
 )
