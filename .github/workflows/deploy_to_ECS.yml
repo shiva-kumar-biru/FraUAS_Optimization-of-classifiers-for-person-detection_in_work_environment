@@ -1,4 +1,4 @@
-name: deploy to ECR and ECS
+name: Deploy to ECR and ECS
 
 on:
   push:
@@ -6,22 +6,27 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: [ubuntu-latest]
+    runs-on: ubuntu-latest
+
     steps:
+      # Step 1: Checkout the source code
       - name: Checkout source
         uses: actions/checkout@v3
+
+      # Step 2: Configure AWS credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: "us-east-1"
+
+      # Step 3: Login to Amazon ECR
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-        with:
-          mask-password: "true"
 
+      # Step 4: Build, tag, and push Docker image to Amazon ECR
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         env:
@@ -29,13 +34,13 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
           REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         run: |
-          # Build a docker container and
-          # push it to ECR so that it can
-          # be deployed to ECS.
+          echo "Building Docker image..."
           docker build -t $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          echo "Pushing Docker image to ECR..."
           docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
+      # Step 5: Update ECS task definition with the new image
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
@@ -43,6 +48,8 @@ jobs:
           task-definition: task-definition.json
           container-name: mlpanelcontainer
           image: ${{ steps.build-image.outputs.image }}
+
+      # Step 6: Deploy the updated ECS task definition
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
