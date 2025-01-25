@@ -1,3 +1,43 @@
+# name: Deploy to ECR and ECS.
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       # Step 1: Check out the code
+#       - name: Check out the code
+#         uses: actions/checkout@v3
+
+#       # Step 2: Configure AWS Credentials
+#       - name: Configure AWS Credentials
+#         uses: aws-actions/configure-aws-credentials@v2
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ${{ secrets.AWS_REGION }}
+
+#       # Step 3: Log in to Amazon ECR
+#       - name: Log in to Amazon ECR
+#         run: |
+#           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+
+#       # Step 4: Build, Tag, and Push Docker Image
+#       - name: Build, Tag, and Push Docker Image
+#         env:
+#           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+#           ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+#         run: |
+#           IMAGE_TAG=$(date +%s)  # Use a timestamp for the image tag
+#           docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+#           docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY:$IMAGE_TAG
+#           docker push $ECR_REGISTRY:$IMAGE_TAG
+
 name: Deploy to ECR and ECS.
 
 on:
@@ -34,6 +74,28 @@ jobs:
           ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
         run: |
           IMAGE_TAG=$(date +%s)  # Use a timestamp for the image tag
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+          docker pull $ECR_REPOSITORY:latest || true
           docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
           docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY:$IMAGE_TAG
           docker push $ECR_REGISTRY:$IMAGE_TAG
+
+      # Step 5: Update ECS Task Definition
+      - name: Update ECS Task Definition
+        run: |
+          sed -i "s|<IMAGE_URI>|${{ secrets.ECR_REGISTRY }}:${{ env.IMAGE_TAG }}|g" ecs-task-definition.json
+          sed -i "s|\${{ secrets.AWS_REGION }}|${{ secrets.AWS_REGION }}|g" ecs-task-definition.json
+      # Step 6: Register ECS Task Definition
+      - name: Register ECS Task Definition
+        run: |
+          aws ecs register-task-definition \
+            --cli-input-json file://ecs-task-definition.json
+
+      # Step 7: Update ECS Service
+      - name: Update ECS Service
+        run: |
+          aws ecs update-service \
+            --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
+            --service ${{ secrets.ECS_SERVICE_NAME }} \
+            --force-new-deployment \
+            --network-configuration "awsvpcConfiguration={subnets=[${{ secrets.SUBNET_ID }}],securityGroups=[${{ secrets.SECURITY_GROUP_ID }}],assignPublicIp=ENABLED}"
