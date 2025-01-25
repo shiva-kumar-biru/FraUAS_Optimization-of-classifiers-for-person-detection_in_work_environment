@@ -1,102 +1,52 @@
-# name: Deploy to ECR and ECS
-
-# on:
-#   push:
-#     branches:
-#       - main
-
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       # Step 1: Check out the code
-#       - name: Check out the code
-#         uses: actions/checkout@v3
-
-#       # Step 2: Configure AWS Credentials
-#       - name: Configure AWS Credentials
-#         uses: aws-actions/configure-aws-credentials@v2
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           aws-region: ${{ secrets.AWS_REGION }}
-
-#       # Step 3: Log in to Amazon ECR
-#       - name: Log in to Amazon ECR
-#         run: |
-#           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
-
-#       # Step 4: Build, Tag, and Push Docker Image
-#       - name: Build, Tag, and Push Docker Image
-#         env:
-#           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-#           ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
-#         run: |
-#           IMAGE_TAG=$(date +%s)  # Use a timestamp for the image tag
-#           docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
-#           docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY:$IMAGE_TAG
-#           docker push $ECR_REGISTRY:$IMAGE_TAG
-
-name: Deploy to ECR and ECS.
+name: deploy to ECR and ECS
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
+  build-and-deploy:
+    runs-on: [ubuntu-latest]
     steps:
-      # Step 1: Check out the code
-      - name: Check out the code
+      - name: Checkout source
         uses: actions/checkout@v3
-
-      # Step 2: Configure AWS Credentials
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: "eu-east-1"
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: "true"
 
-      # Step 3: Log in to Amazon ECR
-      - name: Log in to Amazon ECR
-        run: |
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
-
-      # Step 4: Build, Tag, and Push Docker Image
-      - name: Build, Tag, and Push Docker Image
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
         env:
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+          REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         run: |
-          IMAGE_TAG=$(date +%s)  # Use a timestamp for the image tag
-          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
-          docker pull $ECR_REPOSITORY:latest || true
-          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
-          docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY:$IMAGE_TAG
-          docker push $ECR_REGISTRY:$IMAGE_TAG
+          # Build a docker container and
+          # push it to ECR so that it can
+          # be deployed to ECS.
+          docker build -t $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      # Step 5: Update ECS Task Definition
-      - name: Update ECS Task Definition
-        run: |
-          sed -i "s|<IMAGE_URI>|${{ secrets.ECR_REGISTRY }}:${{ env.IMAGE_TAG }}|g" ecs-task-definition.json
-          sed -i "s|\${{ secrets.AWS_REGION }}|${{ secrets.AWS_REGION }}|g" ecs-task-definition.json
-      # Step 6: Register ECS Task Definition
-      - name: Register ECS Task Definition
-        run: |
-          aws ecs register-task-definition \
-            --cli-input-json file://ecs-task-definition.json
-
-      # Step 7: Update ECS Service
-      - name: Update ECS Service
-        run: |
-          aws ecs update-service \
-            --cluster ${{ secrets.ECS_CLUSTER }} \
-            --service ${{ secrets.ECS_SERVICE }} \
-            --desired-count 1 \
-            --force-new-deployment \
-            --network-configuration "awsvpcConfiguration={subnets=[${{ secrets.SUBNET_ID }}],securityGroups=[${{ secrets.SECURITY_GROUP_ID }}],assignPublicIp=ENABLED}"
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: mlpanelcontainer
+          image: ${{ steps.build-image.outputs.image }}
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ secrets.ECS_SERVICE }}
+          cluster: ${{ secrets.ECS_CLUSTER }}
+          wait-for-service-stability: true
