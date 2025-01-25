@@ -4,6 +4,15 @@ FROM python:3.10
 # Set the working directory in the container
 WORKDIR /app
 
+# Install system dependencies (including GDAL and other build tools)
+RUN apt-get update && apt-get install -y \
+    gdal-bin \
+    libgdal-dev \
+    python3-gdal
+
+# Set GDAL environment variables
+ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
+ENV C_INCLUDE_PATH=/usr/include/gdal
 # Copy the requirements file to the working directory
 COPY ./requirements.txt /app/requirements.txt
 
