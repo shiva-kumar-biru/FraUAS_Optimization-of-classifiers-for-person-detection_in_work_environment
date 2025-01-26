@@ -10,8 +10,8 @@ import joblib
 
 # S3 model keys
 MODEL_OPTIONS = {
-    "rfc": "trainedmodels/models/rf_classifier.pkl",
-    "svm": "trainedmodels/models/svm1_model.pkl",
+    "rfc": "trainedmodels/models/rf_classifier",
+    "svm": "trainedmodels/models/svm1_modell",
     "lr": "trainedmodels/models/logistic_regression_model.pkl",
     "lr_scaler": "trainedmodels/models/scaler.pkl",
     "xgboost": "trainedmodels/models/best_xgb_model_early_stopping.pkl",
