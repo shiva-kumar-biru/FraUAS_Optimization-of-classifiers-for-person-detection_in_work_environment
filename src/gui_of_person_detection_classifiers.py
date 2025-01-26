@@ -4,6 +4,9 @@ from dataprocessing_of_gui import file_processing,rfc,gbm,svm,xgboost,lr
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
+import boto3
+from PIL import Image
+import io
 
 custom_style = {
     'padding': '14px',
@@ -21,8 +24,25 @@ style_to_display= {
     'font-weight': 'bold'
 }
 
-logopath=r"//Users//shivakumarbiru//Desktop//individual_project//Images//university_logo.png"
-logo = pn.pane.Image(logopath, width=150, height=150)
+
+
+# Initialize S3 client
+s3 = boto3.client("s3")
+
+# Bucket and file details
+bucket_name = "individualprojectdataset"
+s3_key = "Images/university_logo.png"  # S3 key of your image
+
+# Fetch the image file from S3 as a stream
+response = s3.get_object(Bucket=bucket_name, Key=s3_key)
+image_data = response["Body"].read()
+
+# Load the image from the byte stream using PIL
+image = Image.open(io.BytesIO(image_data))
+
+# Optionally, you can save or manipulate the image here
+# Display the image using Panel
+logo = pn.pane.Image(io.BytesIO(image_data), width=150, height=150)
 global_data = {"normalized_data": None, "test_labels_df": None,
                    "classifier_accuracies": {}}
 
