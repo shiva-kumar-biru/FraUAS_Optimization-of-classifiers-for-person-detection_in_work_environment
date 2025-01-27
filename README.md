@@ -7,6 +7,10 @@ Efficiently detecting the presence of individuals in an office environment is cr
 
 To achieve this, the project integrates advanced data processing, robust machine learning models, and seamless deployment strategies. The solution is scalable and automated, making it suitable for real-world implementation in dynamic office settings.
 
+## Project Architecture
+
+![Project Architecture](https://github.com/shiva-kumar-biru/FraUAS_Optimization-of-classifiers-for-person-detection_in_work_environment/blob/main/Images/Architecture.png)
+
 ## Project Structure
 
 ### 1. Data Processing and Model Training - `Convert_ADC_to_FFT_and_Model_Training.ipynb`
