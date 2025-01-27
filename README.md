@@ -3,7 +3,9 @@
 
 ## Project Overview
 
-This project aims to optimize machine learning classifiers for detecting the presence of a person in an office environment using ultrasonic data collected via a Red Pitaya device. The project includes data conversion, signal processing, model training, and scenario-based model evaluation, all integrated with a user-friendly Graphical User Interface (GUI).
+Efficiently detecting the presence of individuals in an office environment is crucial for optimizing energy consumption, ensuring safety, and enabling smart workplace applications. This project utilizes ultrasonic data collected via a Red Pitaya device to develop machine learning classifiers capable of reliably detecting occupancy.
+
+To achieve this, the project integrates advanced data processing, robust machine learning models, and seamless deployment strategies. The solution is scalable and automated, making it suitable for real-world implementation in dynamic office settings.
 
 ## Project Structure
 
@@ -29,7 +31,7 @@ This project aims to optimize machine learning classifiers for detecting the pre
   - Run the `Scenarios_test_for_classifers.ipynb` script to test the models on scenario-specific data.
   - The script automatically loads the necessary models and applies them to the test data.
 
-### 3. Graphical User Interface (GUI)
+
 - **Purpose**:
   - Provides an interactive interface for users to evaluate model performance.
   - Allows users to select test data from the `data/panel_test/` folder and view the confusion matrix, metrics, and accuracy of each classifier for a chosen scenario.
@@ -37,8 +39,51 @@ This project aims to optimize machine learning classifiers for detecting the pre
 - **Implementation**:
   - The GUI is built using the `Panel` library, offering a user-friendly way to interact with the models and visualize results.
 
-- **How to Run The GUI**
-## Installation Instructions
+
+### 3. Graphical User Interface (GUI)
+
+- **Purpose**:
+
+  - Provides an interactive interface for users to evaluate model performance.
+  - Allows users to select test data from the `data/panel_test/` folder and view the confusion matrix, metrics, and accuracy of each classifier for a chosen scenario.
+  
+- **Implementation**:
+
+  - The GUI is built using the Panel library, offering a user-friendly way to interact with the models and visualize results.
+  - The GUI is dockerized and the container image is pushed to AWS Elastic Container Registry (ECR).
+  - The application is deployed and hosted on AWS ECS Fargate, ensuring scalable and serverless execution.
+  
+- **Access**:
+
+  - The GUI is running on AWS ECS and can be accessed through the provided endpoint 
+
+    [URL for the GUI](panelalb-648001900.us-east-1.elb.amazonaws.com)
+
+### 4. Deployment and Automation
+
+- **Dockerfile**:
+
+   - The Dockerfile in the root directory is used to containerize the application, including all necessary dependencies and configurations.
+
+- **CI/CD Pipeline**:
+
+   - A fully automated pipeline is implemented using GitHub Actions to build, test, push the Docker image to AWS ECR, and deploy the container on AWS ECS Fargate.
+   - Pipeline configuration is located in the file: `.github/workflows/deploy_to_ECS.yml.`
+ 
+- **Task Definition**:
+
+   - The ECS task definition is stored in task-definition.json, which specifies how the container should run, including resources, networking, and environment variables. (`task-definition.json`)
+
+
+  
+###  5. Source Code:
+
+   - All Python scripts and relevant code are located in the src/ folder.
+
+
+
+  
+## Installation Instructions to run on Local 
 
 ### 1. Ensure You Have Python and pip Installed
 
@@ -78,10 +123,10 @@ pip install -r requirements.txt
 
 
 ### - The GUI Example 
-![gui](https://user-images.githubusercontent.com/103111111/164362111-8f
+![gui](https://github.com/shiva-kumar-biru/FraUAS_Optimization-of-classifiers-for-person-detection_in_work_environment/blob/main/Images/panel_gui.png)
 
 ### - GUI output 
-![gui_output](https://user-images.githubusercontent.com/103111111/164362111-8
+![gui_output](https://github.com/shiva-kumar-biru/FraUAS_Optimization-of-classifiers-for-person-detection_in_work_environment/blob/main/Images/panel_gui_output.png)
 
 ## Directory Structure
 
@@ -92,9 +137,20 @@ pip install -r requirements.txt
 - **`Scenarios_test_for_classifers.ipynb`**: Script for scenario-wise model testing.
 - **`gui_of_person_detection_classifiers.py`**: GUI script for model evaluation and comparison.
 -  **`dataprocessing_of_gui`**: This file contains the conversion process and the loaded trained models of the GUI 
+-  **`.github/workflows/deploy_to_ECS.yml`**: GitHub Actions configuration file for automating CI/CD pipeline, including deployment to AWS ECS.
+-  **`task-definition.json`**: ECS task definition file specifying container runtime details, resources, and environment configurations.
+-  **`Dockerfile`**: File for containerizing the application, including dependencies and configurations.
 - **`README.md`**: This readme file.
 
-## Project Objective
 
-The project's objective is to develop and optimize machine learning classifiers for person detection in an office setting. The final deliverable includes a functional GUI, allowing users to interact with the models, evaluate their performance, and make informed decisions based on the results.
+
+
+
+
+
+
+
+
+
+
 
