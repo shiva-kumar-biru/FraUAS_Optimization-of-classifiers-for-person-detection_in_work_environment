@@ -5,8 +5,8 @@ on:
     branches: [main]
     paths-ignore:
       - "README.md"
-      - "Images"
-      - "docs"
+      - "Images/**"
+      - "docs/**"
 
 jobs:
   build-and-deploy:
