@@ -1,5 +1,4 @@
-name: CI + CD --> Deploy to ECR and ECS
-
+name: CI/CD
 on:
   push:
     branches: [main]
