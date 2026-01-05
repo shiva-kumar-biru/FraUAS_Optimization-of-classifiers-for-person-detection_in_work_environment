@@ -1,0 +1,18 @@
+[flake8]
+max-line-length = 100
+ignore =
+    E203,
+    W503,
+    E501,
+    E121,
+    E126,
+    E127,
+    E131
+exclude =
+    .git,
+    __pycache__,
+    venv,
+    .venv,
+    .pytest_cache
+    barchart.py
+    conversion_from_txt_to_csv.py
