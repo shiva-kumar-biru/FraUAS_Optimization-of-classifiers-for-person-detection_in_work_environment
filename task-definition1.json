@@ -1,0 +1,36 @@
+{
+    "family": "mlpaneltask",
+    "networkMode": "awsvpc",
+    "executionRoleArn": "arn:aws:iam::442042528233:role/ecsTaskExecutionRole",
+    "taskRoleArn": "arn:aws:iam::442042528233:role/ecsTaskExecutionRole",
+    "requiresCompatibilities": [
+      "FARGATE"
+    ],
+    "cpu": "1024",
+    "memory": "3072",
+    "containerDefinitions": [
+      {
+        "name": "mlpanelcontainer",
+        "image": "442042528233.dkr.ecr.us-east-1.amazonaws.com/panelapprepo",
+        "portMappings": [
+          {
+            "name": "ml-panel-application",
+            "containerPort": 5006,
+            "hostPort": 5006,
+            "protocol": "tcp",
+            "appProtocol": "http"
+          }
+        ],
+        "essential": true,
+        "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-group": "/ecs/mlpaneltask",
+            "awslogs-region": "us-east-1",
+            "awslogs-stream-prefix": "ecs"
+          }
+        }
+      }
+    ]
+  }
+  

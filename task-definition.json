@@ -1,36 +1,86 @@
 {
-    "family": "mlpaneltask",
-    "networkMode": "awsvpc",
-    "executionRoleArn": "arn:aws:iam::442042528233:role/ecsTaskExecutionRole",
-    "taskRoleArn": "arn:aws:iam::442042528233:role/ecsTaskExecutionRole",
-    "requiresCompatibilities": [
-      "FARGATE"
-    ],
-    "cpu": "1024",
-    "memory": "3072",
-    "containerDefinitions": [
-      {
-        "name": "mlpanelcontainer",
-        "image": "442042528233.dkr.ecr.us-east-1.amazonaws.com/panelapprepo",
-        "portMappings": [
-          {
-            "name": "ml-panel-application",
-            "containerPort": 5006,
-            "hostPort": 5006,
-            "protocol": "tcp",
-            "appProtocol": "http"
-          }
-        ],
-        "essential": true,
-        "logConfiguration": {
-          "logDriver": "awslogs",
-          "options": {
-            "awslogs-group": "/ecs/mlpaneltask",
-            "awslogs-region": "us-east-1",
-            "awslogs-stream-prefix": "ecs"
-          }
+  "taskDefinitionArn": "arn:aws:ecs:us-east-1:559050228271:task-definition/paneltask:3",
+  "containerDefinitions": [
+    {
+      "name": "mlpanelcontainer",
+      "image": "nginx:latest",
+      "cpu": 0,
+      "memory": 2048,
+      "portMappings": [
+        {
+          "name": "mlpanelcontainer-5006-tcp",
+          "containerPort": 5006,
+          "hostPort": 5006,
+          "protocol": "tcp",
+          "appProtocol": "http"
         }
-      }
-    ]
-  }
-  
+      ],
+      "essential": true,
+      "environment": [],
+      "environmentFiles": [],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "ulimits": [],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/paneltask",
+          "awslogs-create-group": "true",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        },
+        "secretOptions": []
+      },
+      "systemControls": []
+    }
+  ],
+  "family": "paneltask",
+  "taskRoleArn": "arn:aws:iam::559050228271:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::559050228271:role/ecsTaskExecutionRole",
+  "networkMode": "awsvpc",
+  "revision": 3,
+  "volumes": [],
+  "status": "ACTIVE",
+  "requiresAttributes": [
+    {
+      "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+    },
+    {
+      "name": "ecs.capability.execution-role-awslogs"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.task-iam-role"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+    },
+    {
+      "name": "ecs.capability.task-eni"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+    }
+  ],
+  "placementConstraints": [],
+  "compatibilities": [
+    "EC2",
+    "MANAGED_INSTANCES",
+    "FARGATE"
+  ],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "1024",
+  "memory": "2048",
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "registeredAt": "2026-01-08T18:53:53.381Z",
+  "registeredBy": "arn:aws:iam::559050228271:root",
+  "enableFaultInjection": false,
+  "tags": []
+}
