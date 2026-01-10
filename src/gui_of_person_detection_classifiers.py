@@ -37,7 +37,7 @@ style_to_display = {
 # Initialize S3 client
 s3 = boto3.client("s3")
 
-bucket_name = "individualprojectdataset"
+bucket_name = "individualprojectdataset1"
 s3_key = "Images/university_logo.png"
 
 response = s3.get_object(Bucket=bucket_name, Key=s3_key)

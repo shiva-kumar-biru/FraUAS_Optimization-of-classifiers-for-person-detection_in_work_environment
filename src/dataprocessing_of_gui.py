@@ -33,7 +33,7 @@ def load_selected_model(model_name):
     to the local file system.
     """
     s3 = boto3.client("s3")
-    bucket_name = "individualprojectdataset"
+    bucket_name = "individualprojectdataset1"
     s3_key = MODEL_OPTIONS[model_name]
 
     response = s3.get_object(Bucket=bucket_name, Key=s3_key)
