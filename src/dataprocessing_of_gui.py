@@ -19,7 +19,7 @@ from sklearn.metrics import (
 # S3 model keys
 MODEL_OPTIONS = {
     "rfc": "trainedmodels/models/rf_classifier",
-    "svm": "trainedmodels/models/svm1_modell",
+    "svm": "trainedmodels/models/svm1_model",
     "lr": "trainedmodels/models/logistic_regression_model.pkl",
     "lr_scaler": "trainedmodels/models/scaler.pkl",
     "xgboost": "trainedmodels/models/best_xgb_model_early_stopping.pkl",
@@ -77,7 +77,8 @@ def file_processing(file):
     sampling_rate = 1953125
 
     fft_values_list = []
-    frequency_list = []
+    # frequency_list = []
+    frequency_list = None  # added later
 
     for row in adc_array:
         autocorr_result = autocorrelation(row)
@@ -89,7 +90,8 @@ def file_processing(file):
         positive_freqs = freq[: len(freq) // 2] / 1000
         positive_fft_values = np.abs(fft_result[: len(freq) // 2])
 
-        if not frequency_list:
+        # if not frequency_list:  added later
+        if frequency_list is None:
             frequency_list = positive_freqs
 
         fft_values_list.append(positive_fft_values)
